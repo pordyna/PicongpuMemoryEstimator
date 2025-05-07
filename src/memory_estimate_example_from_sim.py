@@ -1,13 +1,5 @@
 #!/usr/bin/env python
 
-"""
-This file is part of PIConGPU.
-
-Copyright 2018-2024 PIConGPU contributors
-Authors: Marco Garten, Pawel Ordyna,Brian Marre
-License: GPLv3+
-"""
-
 import sys
 import json
 import math
