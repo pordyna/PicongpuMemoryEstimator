@@ -98,30 +98,28 @@ class MemoryUsageEstimator:
         gpu_memory_field = np.zeros(self.gpus_dist, dtype=int)
         gpu_memory_particles = np.zeros(self.gpus_dist, dtype=int)
 
-        n_particles = [np.zeros(self.gpus_dist, dtype=int)] * len(self.species_names)
+        n_particles = {species: np.zeros(self.gpus_dist, dtype=int) for species in self.species_names}
 
         offsets = [
             np.insert(np.cumsum(cells[ii][:-1]), 0, 0) for ii in range(self.ndim)
         ]
-
-        with np.nditer(
-            n_particles,
-            flags=["multi_index"],
-            op_flags=[("writeonly",)] * len(self.species_names),
-        ) as it:
-            for n_particles_it in it:
-                offset = [offsets[ii][it.multi_index[ii]] for ii in range(self.ndim)]
-                extent = [cells[ii][it.multi_index[ii]] for ii in range(self.ndim)]
-                positions = [
-                    np.arange(offset[ii], offset[ii] + extent[ii]) * self.dx[ii]
-                    for ii in range(self.ndim)
-                ]
-                for ss, species_name in enumerate(self.species_names):
-                    n_particles_it[ss][...] = self.get_number_particle_cells(
+        for species_name in self.species_names:
+            with np.nditer(
+                n_particles[species_name],
+                flags=["multi_index",],
+                op_flags=[("writeonly",)],
+            ) as it:
+                for n_particles_it in it:
+                    offset = [offsets[ii][it.multi_index[ii]] for ii in range(self.ndim)]
+                    extent = [cells[ii][it.multi_index[ii]] for ii in range(self.ndim)]
+                    positions = [
+                        np.arange(offset[ii], offset[ii] + extent[ii]) * self.dx[ii]
+                        for ii in range(self.ndim)
+                    ]
+                    n_particles_it[...] = self.get_number_particle_cells(
                         species_name, *positions
                     )
 
-        n_particles = dict(zip(self.species_names, n_particles))
 
         with np.nditer(
             [

@@ -28,7 +28,7 @@ jet_radius += preplasma_cutoff
 particles_per_cell = {"e": 32, "hydrogen": 32}
 
 if grid_dist is None:
-    gpu_cell_extent = grid_cells / gpus_dist
+    gpu_cell_extent = np.array(grid_cells) / np.array(gpus_dist)
     grid_extent = [np.ones(gpus_dist[ii]) * gpus_dist[ii] for ii in range(3)]
 else:
     grid_extent = grid_dist
